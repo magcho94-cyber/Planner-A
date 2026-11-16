@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#243b5b">
+  <meta name="description" content="월간 달력과 하루 일정을 한곳에서 관리하는 플래너">
+  <title>하루 플래너</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="하루 플래너 홈">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="7" width="22" height="20" rx="5" fill="currentColor" opacity=".18"/><path d="M10 4v6M22 4v6M6 13h20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="m12.1 20 2.4 2.4 5.4-5.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span><strong>하루 플래너</strong><small>내 시간에 맞춰 차분하게</small></span>
+      </a>
+      <div class="top-actions">
+        <span class="save-indicator"><i></i> 이 브라우저에 자동 저장</span>
+        <button class="button button-soft install-button" id="installButton" type="button" hidden>앱 설치</button>
+        <button class="button button-soft today-button" id="todayButton" type="button">오늘</button>
+        <button class="button button-primary" id="addButton" type="button"><span aria-hidden="true">＋</span> 일정 추가</button>
+      </div>
+    </header>
+
+    <main class="planner-layout">
+      <section class="panel calendar-panel" aria-labelledby="monthTitle">
+        <div class="panel-heading">
+          <div><p class="eyebrow">MONTHLY VIEW</p><h1 id="monthTitle"></h1></div>
+          <div class="month-controls">
+            <button class="icon-button" id="previousMonth" type="button" aria-label="이전 달">‹</button>
+            <button class="icon-button" id="nextMonth" type="button" aria-label="다음 달">›</button>
+          </div>
+        </div>
+        <div class="weekday-grid" aria-hidden="true">
+          <span class="sunday">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="saturday">토</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="월간 달력"></div>
+        <div class="calendar-legend"><span class="legend-dot"></span><span>일정이 있는 날짜</span></div>
+        <div class="calendar-note"><span class="note-icon" aria-hidden="true">✦</span><p>날짜를 누르면 그날의 계획을 볼 수 있어요.</p></div>
+      </section>
+
+      <section class="panel day-panel" aria-labelledby="dayTitle">
+        <div class="day-heading">
+          <div><p class="eyebrow">DAILY PLAN</p><h2 id="dayTitle"></h2><p class="day-summary" id="daySummary"></p></div>
+          <button class="notification-toggle" id="notificationToggle" type="button" aria-pressed="true">
+            <span class="toggle-dot"></span><span id="notificationLabel">알림 켜짐</span>
+          </button>
+        </div>
+        <div class="task-list" id="taskList" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>일정은 이 브라우저에 저장됩니다.</span><span class="footer-separator">·</span>
+      <span>시간 알림은 플래너가 열려 있을 때 표시돼요.</span>
+    </footer>
+  </div>
+
+  <dialog class="dialog editor-dialog" id="editorDialog" aria-labelledby="editorHeading">
+    <form id="taskForm">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">YOUR PLAN</p><h2 id="editorHeading">새 일정</h2></div>
+        <button class="dialog-close" id="closeEditor" type="button" aria-label="닫기">×</button>
+      </div>
+      <label class="field-label" for="taskTitle">일정 이름</label>
+      <input class="text-input" id="taskTitle" name="title" type="text" maxlength="100" placeholder="예: 영어 수업 준비" required>
+      <div class="field-row">
+        <div class="field"><label class="field-label" for="taskDate">날짜</label><input class="text-input" id="taskDate" name="date" type="date" required></div>
+        <div class="field"><label class="field-label" for="taskTime">시간</label><input class="text-input" id="taskTime" name="time" type="time" required></div>
+      </div>
+      <label class="field-label" for="taskNotes">메모 <span class="optional-label">선택</span></label>
+      <textarea class="text-input notes-input" id="taskNotes" name="notes" maxlength="500" placeholder="필요한 내용을 적어두세요."></textarea>
+      <label class="reminder-option" for="taskReminder">
+        <input id="taskReminder" name="reminder" type="checkbox" checked><span class="custom-check" aria-hidden="true"></span>
+        <span><strong>시간이 되면 화면에 알리기</strong><small>소리는 나지 않아요.</small></span>
+      </label>
+      <div class="dialog-actions"><button class="button button-soft" id="cancelEditor" type="button">취소</button><button class="button button-primary" type="submit">저장</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog reminder-dialog" id="reminderDialog" aria-labelledby="reminderTitle">
+    <div class="reminder-content">
+      <button class="dialog-close reminder-close" id="dismissReminder" type="button" aria-label="알림 닫기">×</button>
+      <span class="reminder-symbol" aria-hidden="true">✦</span>
+      <p class="eyebrow">지금 할 시간이에요</p>
+      <p class="reminder-time" id="reminderTime"></p>
+      <h2 id="reminderTitle"></h2>
+      <p class="reminder-note" id="reminderNote"></p>
+      <div class="reminder-actions">
+        <button class="button button-primary" id="completeReminder" type="button">완료</button>
+        <button class="button button-soft" id="snoozeReminder" type="button">10분 후</button>
+        <button class="text-button" id="muteReminder" type="button">전체 알림 끄기</button>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

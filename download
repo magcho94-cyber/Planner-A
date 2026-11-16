@@ -1,0 +1,9 @@
+.git
+.github
+README.md
+Dockerfile
+.dockerignore
+*.zip
+*.ps1
+*.bat
+node_modules
